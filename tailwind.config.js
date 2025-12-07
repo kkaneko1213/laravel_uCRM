@@ -13,6 +13,9 @@ module.exports = {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },  
+            red: {
+                500: "#ef4444",
             },
         },
     },
