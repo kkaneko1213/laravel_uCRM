@@ -8,6 +8,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CustomerController;
 use Inertia\Inertia;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\AnalysisController;
 
 // ---------uCRMルーティング--------------
 Route::resource('/items', ItemController::class)
@@ -19,6 +20,7 @@ Route::resource('/customers', CustomerController::class)
 Route::resource('/purchases', PurchaseController::class)
 ->middleware(['auth', 'verified']);
 
+Route::get('analysis', [AnalysisController::class, 'index'])->name('analysis');
 // -------------------------------------
 
 
