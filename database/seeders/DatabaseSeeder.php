@@ -7,7 +7,7 @@ namespace Database\Seeders;
 use App\Models\Item;
 use Illuminate\Database\Seeder;
 use App\Models\Purchase;
-
+use Database\Seeders\RankSeeder;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            ItemSeeder::class
+            ItemSeeder::class,
+            RankSeeder::class,
         ]);
 
         \App\Models\Customer::factory(1000)->create();

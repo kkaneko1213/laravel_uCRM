@@ -1,26 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Services;
 
-use App\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
-class AnalysisController extends Controller
+class RFMService 
 {
-    public function index(){
-        
-        // $this->rfm();
-
-        return Inertia::render('Analysis');
-    }
-
-    public function rfm(){
-        $startDate = '2026-01-01';
-        $endDate = '2026-01-02';
-
-        $subQuery = Order::betweenDate($startDate, $endDate)
+    public static function rfm($subQuery, $rfmPrms){
+        $subQuery = $subQuery
         ->groupBy('id')
         ->selectRaw('id, customer_id, customer_name, SUM(subtotal) as totalPerPurchase, created_at');
 
@@ -35,7 +23,7 @@ class AnalysisController extends Controller
             SUM(totalPerPurchase) as monetary 
         ');
 
-        $rfmPrms = [14, 28, 60, 90, 7, 5, 3, 2, 300000, 200000, 100000, 30000];
+        // $rfmPrms = [14, 28, 60, 90, 7, 5, 3, 2, 300000, 200000, 100000, 30000];
         $subQuery = DB::table($subQuery)
         ->selectRaw('
             customer_id, 
@@ -66,11 +54,11 @@ class AnalysisController extends Controller
                 else 1
             end as m
         ', $rfmPrms);
-
-        // dd($subQuery->get());
+        
+        Log::debug($subQuery->get());
 
         // 5.ランクごとの数を計算する
-        $total = DB::table($subQuery)->count();
+        $totals = DB::table($subQuery)->count();
 
         $rCount = DB::table($subQuery)
         ->rightJoin('ranks', 'ranks.rank', '=', 'r')
@@ -79,7 +67,7 @@ class AnalysisController extends Controller
         ->orderBy('r', 'desc')
         ->pluck('count(r)');
 
-        // dd($rCount->get());
+        Log::debug($rCount);        
         
         $fCount = DB::table($subQuery)
         ->rightJoin('ranks', 'ranks.rank', '=', 'f')
@@ -108,8 +96,6 @@ class AnalysisController extends Controller
             $rank--;
         }
 
-        // dd($total, $eachCount, $rCount, $fCount, $mCount);
-
         // 6.
         $data = DB::table($subQuery)
         ->rightJoin('ranks', 'ranks.rank', '=', 'r')
@@ -124,6 +110,6 @@ class AnalysisController extends Controller
         ')->orderBy('rRank', 'desc')
         ->get();
 
-        dd($data);
+        return [$data, $totals ,$eachCount];
     }
 }
